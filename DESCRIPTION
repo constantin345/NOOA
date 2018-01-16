@@ -1,0 +1,15 @@
+Package: NOOA
+Title: NOOA Earthquakes
+Version: 0.0.1.0
+Authors@R: person("Constantin", "Cosma", email = "cosma.constantin@mail.com", role = c("aut", "cre"))
+Description: Create graphical extensions for visualizing information of earthquakes. 
+Depends: R (>= 3.4.3)
+License: GPL-3 + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
+Imports: dplyr, ggplot2,leaflet,lubridate,tidyr, grid,purrr,rlang, readr,stringr, sp, rworldmap
+Suggests: testthat,
+    knitr,
+    rmarkdown, 
+VignetteBuilder: knitr

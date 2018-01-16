@@ -1,0 +1,287 @@
+---
+title: "NOOA package"
+author: "Constantin Cosma"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This package was designed to provide visualising methodes for earthquake data. These data were provided by the [U.S. National Oceanographic and Atmospheric Administration (NOAA)](https://www.ngdc.noaa.gov/nndc/struts/form?t=101650&s=1&d=1) Significant Earthquake Database. 
+The data set contains information on 5,933 earthquakes that occurred in a 4,000-year period. The data set is in the directory `date` from the package (see the file `signif.txt`).
+
+##Installation
+This package depends on the following packages:
+dplyr, ggplot2,leaflet,stringr,lubridate,tidyr, grid,purrr,rlang, readr,stringr, sp, rworldmap.
+Make sure you have the above packages installed.
+
+The NOOA package can be installed from github using the commands:
+```R
+library(devtools)
+install_github("constantin345/NOOA")
+library(NOOA)
+```
+
+## Description
+
+The package provides the user the next functions:
+
+* data loading functions:
+    + `load_data`
+  
+  `load_data` Load in a dataframe the file `signif.txt`.
+  
+```R
+library(NOOA)
+df <- load_data()
+```
+    
+    
+* data imputation functions:
+    + `fix_na_latitude`
+    + `fix_na_longitude`
+    + `fix_na_lon_na_lat`
+    
+  `fix_na_latitude` - solves the cases (from dataframe) with
+  `LATITUDE` is NA and `LONGITUDE` is not NA.
+  
+```R
+library(dplyr)
+library(NOOA)
+df <- load_data()
+df <- df %>% mutate(LATITUDE=as.numeric(LATITUDE)) %>%
+    mutate(LONGITUDE=as.numeric(LONGITUDE)) %>%
+    mutate(EQ_PRIMARY=as.numeric(EQ_PRIMARY)) %>%
+    mutate(DEATHS=as.numeric(DEATHS)) %>%
+    fix_na_latitude
+
+```
+  
+  `fix_na_longitude` - solves the cases (from dataframe) with
+  `LATITUDE` is not NA and `LONGITUDE` is NA.
+  
+```R
+library(dplyr)
+library(NOOA)
+df <- load_data()
+df <- df %>% mutate(LATITUDE=as.numeric(LATITUDE)) %>%
+    mutate(LONGITUDE=as.numeric(LONGITUDE)) %>%
+    mutate(EQ_PRIMARY=as.numeric(EQ_PRIMARY)) %>%
+    mutate(DEATHS=as.numeric(DEATHS)) %>%
+    fix_na_longitude
+```  
+
+
+  `fix_na_lon_na_lat` - solves the cases (from dataframe) with
+  `LATITUDE` is NA and `LONGITUDE` is NA.
+
+```R
+library(dplyr)
+library(NOOA)
+df <- load_data()
+df <- df %>% mutate(LATITUDE=as.numeric(LATITUDE)) %>%
+    mutate(LONGITUDE=as.numeric(LONGITUDE)) %>%
+    mutate(EQ_PRIMARY=as.numeric(EQ_PRIMARY)) %>%
+    mutate(DEATHS=as.numeric(DEATHS)) %>%
+    fix_na_lon_na_lat
+```    
+
+* data cleaning functions:
+    + `eq_clean_data`
+    + `eq_location_clean`
+    + `fix_countries`
+    + `remove_countries`
+    + `convert_data`
+    
+  `eq_clean_data` - A new dateframe is created (a cleaned dataframe) from a raw dataframe by uniting the year, month, day in a single Date column (named DataEQ) and converting some columns (LATITUDE, LONGITUDE, EQ_PRIMARY and DEATHS) to numeric.Also I realized data imputation  calling `fix_na...` functions in the body of this function.
+  
+```R
+library(dplyr)
+library(NOOA)
+df <- load_data() %>% eq_clean_data
+```
+  
+  
+  `eq_location_clean` - Cleans the `LOCATION_NAME` column by stripping out
+the country name (including the colon) and converts names to title case (as opposed to all caps).
+```R
+library(dplyr)
+library(NOOA)
+df <- load_data() %>% eq_clean_data %>% eq_location_clean
+```  
+  
+  `fix_countries` - Checks that the country in which the location
+(given by the columns `LATITUDE` and `LONGITUDE`) is the same with the
+value from `COUNTRY` column. If there are differences, the value
+from the `COUNTRY` column is updated.
+```R
+library(dplyr)
+library(NOOA)
+df <- load_data() %>% fix_countries
+```  
+  
+  `remove_countries` - Removes from column LOCATION_NAME (a NOAA dataframe) the stringswhich representing a name of country.
+```R
+library(dplyr)
+library(NOOA)
+df <- load_data() %>% remove_countries
+```  
+  
+  `convert_data` - A date vector is created by uniting the year, month, day and
+converting it to the Date class 
+```R
+library(lubridate)
+Year <- c(-11, -100, -200, -300, 2000, 0)
+Month <- c(NA, NA, NA, 9, 8, 1)
+Day <- c(8, NA, 7, 29, 20, 12)
+convert_data(Year, Month, Day)
+```
+    
+    
+* data visualisation functions:
+    + `geomTimeline`
+    + `geom_timeline`
+    + `geomTimelineLabel`
+    + `geom_timeline_label`
+    + `eq_map`
+    
+`geomTimeline` - Function to construct a new class for the `geom_timeline`
+`geom_timeline`- A ggplot2 graphical function to plot a timeline of earthquakes from cleaned data. The plot indicates the magnitude of each earthquake and number of deaths.
+`geomTimelineLabel`- Function to construct a new class for the geom_timeline `geom_timeline_label`
+`geom_timeline_label` - This geom adds a vertical line to each data point with a text annotation (e.g. the location of the earthquake) attached to each line. and number of deaths.
+
+
+```R
+library(dplyr)
+library(ggplot2)
+library(NOOA)
+
+#load data and clean data
+df <- load_data() %>% eq_clean_data %>% eq_location_clean
+
+#create a filtered dataframe
+country <- c("JAPAN")
+dfFilter <- filterData(df, COUNTRY=country, minYear=1000, maxYear=1400)
+
+#create graphic
+test <- (ggplot()+
+             geom_timeline(data=dfFilter,aes(x=DataEQ,
+                                       xmin=as.Date("1000-01-01"),
+                                       xmax=as.Date("1400-12-31"),
+                                       colour=DEATHS,
+                                       fill=DEATHS,
+                                       size=EQ_PRIMARY,
+                                       y=COUNTRY))+
+             geom_timeline_label(data=dfFilter, aes(x=DataEQ,
+                                              location=LOCATION_NAME,
+                                              size=EQ_PRIMARY,
+                                              n_max=5,
+                                              y=COUNTRY)))
+
+g <- setupGeom(test)
+g
+```
+
+
+![](../man/figures/README-example-1.png)      
+    
+
+`eq_map` - The function show on a map eartquakes for a particular country.
+All earthquakes are represented by circle on the map. A column from the data
+could be specified by user. This column is annotated. In the example the column
+is `DataEQ`.
+
+``` R
+library(dplyr)
+library(ggplot2)
+library(leaflet)
+library(NOOA)
+dff <- load_data() #load data
+dff <- eq_clean_data(dff) #clean data
+dff <- filter(dff, COUNTRY == "MEXICO" & lubridate::year(DataEQ) >= 2000) #create a filtered dataframe
+
+g <- eq_map(dff, annot_col = "DataEQ") 
+g
+```
+
+![](../man/figures/README-example-2.png)
+    
+* help functions:
+    + `setupGeom`
+    + `filterData`
+    + `create_map`
+    + `coords2country`
+    
+ `setupGeom` - Create a ggplot theme and add this to an ggplot object.
+ `filterData` - A cleaned NOOA dataframe is prepared for visualisation. That means that the eartquakes are filtered after a vector of `COUNTRY`  and
+a period of time. The period of time is given between a `minYear` and `maxYear`.
+ ```R
+library(dplyr)
+library(ggplot2)
+library(NOOA)
+
+#load data and clean data
+df <- load_data() %>% eq_clean_data %>% eq_location_clean
+
+#create a filtered dataframe
+country <- c("JAPAN")
+dfFilter <- filterData(df, COUNTRY=country, minYear=1000, maxYear=1400)
+
+#create graphic
+test <- (ggplot()+
+             geom_timeline(data=dfFilter,aes(x=DataEQ,
+                                       xmin=as.Date("1000-01-01"),
+                                       xmax=as.Date("1400-12-31"),
+                                       colour=DEATHS,
+                                       fill=DEATHS,
+                                       size=EQ_PRIMARY,
+                                       y=COUNTRY))+
+             geom_timeline_label(data=dfFilter, aes(x=DataEQ,
+                                              location=LOCATION_NAME,
+                                              size=EQ_PRIMARY,
+                                              n_max=5,
+                                              y=COUNTRY)))
+
+g <- setupGeom(test)
+```
+ 
+ 
+ `create_map` - The function draw the epicenters eartquakes
+(LATITUDE/LONGITUDE) from a filtered NOAA dataframe.
+Each point is annotates with an pop up window containing
+annotation data stored in a column of the data frame. This function is called by eq_map.
+```R
+library(NOOA)
+library(leaflet)
+library(dplyr)
+
+df <- load_data()
+df <- eq_clean_data(df)
+df <- eq_location_clean(df)
+
+dff <- filter(df, COUNTRY=="CHINA" & YEAR>=2010)
+magnitude <- ifelse(is.na(dff$EQ_PRIMARY),4,dff$EQ_PRIMARY)
+
+content <- paste("<b>Location:</b>", df$LOCATION_NAME,"<br/>",
+ "<b>Magnitude:</b>", df$EQ_PRIMARY,"<br/>",
+"<b>Total deaths:</b>", df$TOTAL_DEATHS)
+
+a <- create_map(dff, content)
+```
+ 
+ `coords2country` - Finds the country where the lation is located
+ by `LATITUDE` and `LONGITUDE`. This function is used by the `fix_countries` function. 
+ ```R
+library(NOOA
+country <- coords2country(33.40,73.30)
+```
+
