@@ -189,11 +189,7 @@ test <- (ggplot()+
 
 g <- setupGeom(test)
 g
-```
-
-
-![](../man/figures/README-example-1.png)      
-    
+```    
 
 `eq_map` - The function show on a map eartquakes for a particular country.
 All earthquakes are represented by circle on the map. A column from the data
@@ -212,8 +208,6 @@ dff <- filter(dff, COUNTRY == "MEXICO" & lubridate::year(DataEQ) >= 2000) #creat
 g <- eq_map(dff, annot_col = "DataEQ") 
 g
 ```
-
-![](../man/figures/README-example-2.png)
     
 * help functions:
     + `setupGeom`
