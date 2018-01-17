@@ -1,7 +1,5 @@
 
 
-# Travis [![Build Status](https://travis-ci.org/constantin345/NOOA.svg?branch=master)](https://travis-ci.org/constantin345/NOOA)
-
 # NOOA package
 
 This package was designed to provide visualising methodes for earthquake data. These data were provided by the [U.S. National Oceanographic and Atmospheric Administration (NOAA)](https://www.ngdc.noaa.gov/nndc/struts/form?t=101650&s=1&d=1) Significant Earthquake Database. 
