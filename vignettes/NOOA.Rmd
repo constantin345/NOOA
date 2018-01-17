@@ -55,14 +55,12 @@ df <- load_data()
   `LATITUDE` is NA and `LONGITUDE` is not NA.
   
 ```R
-library(dplyr)
-library(NOOA)
-df <- load_data()
-df <- df %>% mutate(LATITUDE=as.numeric(LATITUDE)) %>%
-    mutate(LONGITUDE=as.numeric(LONGITUDE)) %>%
-    mutate(EQ_PRIMARY=as.numeric(EQ_PRIMARY)) %>%
-    mutate(DEATHS=as.numeric(DEATHS)) %>%
-    fix_na_latitude
+dfnew <- load_data()
+dfnew <- dplyr::mutate(dfnew, LATITUDE=as.numeric(LATITUDE))
+dfnew <- dplyr::mutate(dfnew, LONGITUDE=as.numeric(LONGITUDE))
+dfnew <- dplyr::mutate(dfnew, EQ_PRIMARY=as.numeric(EQ_PRIMARY))
+dfnew <- dplyr::mutate(dfnew, DEATHS=as.numeric(DEATHS))
+dfnew <- fix_na_latitude(dfnew)
 
 ```
   
@@ -70,14 +68,12 @@ df <- df %>% mutate(LATITUDE=as.numeric(LATITUDE)) %>%
   `LATITUDE` is not NA and `LONGITUDE` is NA.
   
 ```R
-library(dplyr)
-library(NOOA)
-df <- load_data()
-df <- df %>% mutate(LATITUDE=as.numeric(LATITUDE)) %>%
-    mutate(LONGITUDE=as.numeric(LONGITUDE)) %>%
-    mutate(EQ_PRIMARY=as.numeric(EQ_PRIMARY)) %>%
-    mutate(DEATHS=as.numeric(DEATHS)) %>%
-    fix_na_longitude
+dfnew <- load_data()
+dfnew <- dplyr::mutate(dfnew, LATITUDE=as.numeric(LATITUDE))
+dfnew <- dplyr::mutate(dfnew, LONGITUDE=as.numeric(LONGITUDE))
+dfnew <- dplyr::mutate(dfnew, EQ_PRIMARY=as.numeric(EQ_PRIMARY))
+dfnew <- dplyr::mutate(dfnew, DEATHS=as.numeric(DEATHS))
+dfnew <- fix_na_longitude(dfnew)
 ```  
 
 
@@ -85,14 +81,12 @@ df <- df %>% mutate(LATITUDE=as.numeric(LATITUDE)) %>%
   `LATITUDE` is NA and `LONGITUDE` is NA.
 
 ```R
-library(dplyr)
-library(NOOA)
-df <- load_data()
-df <- df %>% mutate(LATITUDE=as.numeric(LATITUDE)) %>%
-    mutate(LONGITUDE=as.numeric(LONGITUDE)) %>%
-    mutate(EQ_PRIMARY=as.numeric(EQ_PRIMARY)) %>%
-    mutate(DEATHS=as.numeric(DEATHS)) %>%
-    fix_na_lon_na_lat
+dfnew <- load_data()
+dfnew <- dplyr::mutate(dfnew, LATITUDE=as.numeric(LATITUDE))
+dfnew <- dplyr::mutate(dfnew, LONGITUDE=as.numeric(LONGITUDE))
+dfnew <- dplyr::mutate(dfnew, EQ_PRIMARY=as.numeric(EQ_PRIMARY))
+dfnew <- dplyr::mutate(dfnew, DEATHS=as.numeric(DEATHS))
+dfnew <- fix_na_lon_na_lat(dfnew)
 ```    
 
 * data cleaning functions:
@@ -105,18 +99,16 @@ df <- df %>% mutate(LATITUDE=as.numeric(LATITUDE)) %>%
   `eq_clean_data` - A new dateframe is created (a cleaned dataframe) from a raw dataframe by uniting the year, month, day in a single Date column (named DataEQ) and converting some columns (LATITUDE, LONGITUDE, EQ_PRIMARY and DEATHS) to numeric.Also I realized data imputation  calling `fix_na...` functions in the body of this function.
   
 ```R
-library(dplyr)
-library(NOOA)
-df <- load_data() %>% eq_clean_data
+df <- load_data()
+df <- eq_clean_data(df)
 ```
   
   
   `eq_location_clean` - Cleans the `LOCATION_NAME` column by stripping out
 the country name (including the colon) and converts names to title case (as opposed to all caps).
 ```R
-library(dplyr)
-library(NOOA)
-df <- load_data() %>% eq_clean_data %>% eq_location_clean
+dfnew <- load_data()
+dff <- eq_location_clean(dfnew)
 ```  
   
   `fix_countries` - Checks that the country in which the location
@@ -166,32 +158,26 @@ convert_data(Year, Month, Day)
 
 
 ```R
-library(dplyr)
-library(ggplot2)
-library(NOOA)
+df <- load_data()
+df <- eq_clean_data(df)
+df <- eq_location_clean(df)
 
-#load data and clean data
-df <- load_data() %>% eq_clean_data %>% eq_location_clean
-
-#create a filtered dataframe
 country <- c("JAPAN")
 dfFilter <- filterData(df, COUNTRY=country, minYear=1000, maxYear=1400)
 
-#create graphic
-test <- (ggplot()+
-             geom_timeline(data=dfFilter,aes(x=DataEQ,
-                                       xmin=as.Date("1000-01-01"),
-                                       xmax=as.Date("1400-12-31"),
-                                       colour=DEATHS,
-                                       fill=DEATHS,
-                                       size=EQ_PRIMARY,
-                                       y=COUNTRY))+
-             geom_timeline_label(data=dfFilter, aes(x=DataEQ,
-                                              location=LOCATION_NAME,
-                                              size=EQ_PRIMARY,
-                                              n_max=5,
-                                              y=COUNTRY)))
-
+test <- (ggplot2::ggplot()+
+            geom_timeline(data=dfFilter,ggplot2::aes(x=DataEQ,
+                                            xmin=as.Date("1000-01-01"),
+                                            xmax=as.Date("1400-12-31"),
+                                            colour=DEATHS,
+                                            fill=DEATHS,
+                                            size=EQ_PRIMARY,
+                                           y=COUNTRY))+
+            geom_timeline_label(data=dfFilter, ggplot2::aes(x=DataEQ,
+                                                   location=LOCATION_NAME,
+                                                   size=EQ_PRIMARY,
+                                                   n_max=5,
+                                                   y=COUNTRY)))
 g <- setupGeom(test)
 g
 ```    
@@ -202,14 +188,10 @@ could be specified by user. This column is annotated. In the example the column
 is `DataEQ`.
 
 ``` R
-library(dplyr)
-library(ggplot2)
-library(leaflet)
-library(NOOA)
-dff <- load_data() #load data
-dff <- eq_clean_data(dff) #clean data
-dff <- filter(dff, COUNTRY == "MEXICO" & lubridate::year(DataEQ) >= 2000) #create a filtered dataframe
-
+df <- load_data()
+df <- eq_clean_data(df)
+df <- dplyr::filter(df, COUNTRY == "MEXICO" & lubridate::year(DataEQ) >= 2000)
+g <- eq_map(df, annot_col = "DataEQ")
 g <- eq_map(dff, annot_col = "DataEQ") 
 g
 ```
@@ -224,33 +206,27 @@ g
  `filterData` - A cleaned NOOA dataframe is prepared for visualisation. That means that the eartquakes are filtered after a vector of `COUNTRY`  and
 a period of time. The period of time is given between a `minYear` and `maxYear`.
  ```R
-library(dplyr)
-library(ggplot2)
-library(NOOA)
+ df <- load_data()
+ df <- eq_clean_data(df)
+ df <- eq_location_clean(df)
+ country <- c("JAPAN")
+ dfFilter <- filterData(df, COUNTRY=country,
+ minYear=1000, maxYear=1400)
+ test <- (ggplot2::ggplot()+
+            geom_timeline(data=dfFilter,ggplot2::aes(x=DataEQ,
+                                            xmin=as.Date("1000-01-01"),
+                                            xmax=as.Date("1400-12-31"),
+                                            colour=DEATHS,
+                                            fill=DEATHS,
+                                            size=EQ_PRIMARY,
+                                            y=COUNTRY))+
+            geom_timeline_label(data=dfFilter, ggplot2::aes(x=DataEQ,
+                                                   location=LOCATION_NAME,
+                                                   size=EQ_PRIMARY,
+                                                   n_max=5,
+                                                   y=COUNTRY)))
 
-#load data and clean data
-df <- load_data() %>% eq_clean_data %>% eq_location_clean
-
-#create a filtered dataframe
-country <- c("JAPAN")
-dfFilter <- filterData(df, COUNTRY=country, minYear=1000, maxYear=1400)
-
-#create graphic
-test <- (ggplot()+
-             geom_timeline(data=dfFilter,aes(x=DataEQ,
-                                       xmin=as.Date("1000-01-01"),
-                                       xmax=as.Date("1400-12-31"),
-                                       colour=DEATHS,
-                                       fill=DEATHS,
-                                       size=EQ_PRIMARY,
-                                       y=COUNTRY))+
-             geom_timeline_label(data=dfFilter, aes(x=DataEQ,
-                                              location=LOCATION_NAME,
-                                              size=EQ_PRIMARY,
-                                              n_max=5,
-                                              y=COUNTRY)))
-
-g <- setupGeom(test)
+a <- setupGeom(test)
 ```
  
  
@@ -259,20 +235,16 @@ g <- setupGeom(test)
 Each point is annotates with an pop up window containing
 annotation data stored in a column of the data frame. This function is called by eq_map.
 ```R
-library(NOOA)
-library(leaflet)
-library(dplyr)
-
 df <- load_data()
 df <- eq_clean_data(df)
 df <- eq_location_clean(df)
 
-dff <- filter(df, COUNTRY=="CHINA" & YEAR>=2010)
+dff <- dplyr::filter(df, COUNTRY=="CHINA" & YEAR>=2010)
 magnitude <- ifelse(is.na(dff$EQ_PRIMARY),4,dff$EQ_PRIMARY)
 
 content <- paste("<b>Location:</b>", df$LOCATION_NAME,"<br/>",
- "<b>Magnitude:</b>", df$EQ_PRIMARY,"<br/>",
-"<b>Total deaths:</b>", df$TOTAL_DEATHS)
+                  "<b>Magnitude:</b>", df$EQ_PRIMARY,"<br/>",
+                  "<b>Total deaths:</b>", df$TOTAL_DEATHS)
 
 a <- create_map(dff, content)
 ```
@@ -280,7 +252,6 @@ a <- create_map(dff, content)
  `coords2country` - Finds the country where the lation is located
  by `LATITUDE` and `LONGITUDE`. This function is used by the `fix_countries` function. 
  ```R
-library(NOOA
 country <- coords2country(33.40,73.30)
 ```
 
