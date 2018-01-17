@@ -124,16 +124,22 @@ df <- load_data() %>% eq_clean_data %>% eq_location_clean
 value from `COUNTRY` column. If there are differences, the value
 from the `COUNTRY` column is updated.
 ```R
-library(dplyr)
-library(NOOA)
-df <- load_data() %>% fix_countries
+dfnew <- load_data()
+dfnew <- dplyr::mutate(dfnew, LATITUDE=as.numeric(LATITUDE))
+dfnew <- dplyr::mutate(dfnew, LONGITUDE=as.numeric(LONGITUDE))
+dfnew <- dplyr::mutate(dfnew, EQ_PRIMARY=as.numeric(EQ_PRIMARY))
+dfnew <- dplyr::mutate(dfnew, DEATHS=as.numeric(DEATHS))
+dfnew <- fix_na_latitude(dfnew)
+dfnew <- fix_na_longitude(dfnew)
+dfnew <- fix_na_lon_na_lat(dfnew)
+dfnew <- dplyr::mutate(dfnew, DataEQ=convert_data(YEAR, MONTH, DAY))
+test <- fix_countries(dfnew)
 ```  
   
   `remove_countries` - Removes from column LOCATION_NAME (a NOAA dataframe) the stringswhich representing a name of country.
 ```R
-library(dplyr)
-library(NOOA)
-df <- load_data() %>% remove_countries
+dfnew <- load_data()
+dff <- remove_countries(dfnew)
 ```  
   
   `convert_data` - A date vector is created by uniting the year, month, day and
