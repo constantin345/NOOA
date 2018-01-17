@@ -139,7 +139,6 @@ df <- load_data() %>% remove_countries
   `convert_data` - A date vector is created by uniting the year, month, day and
 converting it to the Date class 
 ```R
-library(lubridate)
 Year <- c(-11, -100, -200, -300, 2000, 0)
 Month <- c(NA, NA, NA, 9, 8, 1)
 Day <- c(8, NA, 7, 29, 20, 12)
