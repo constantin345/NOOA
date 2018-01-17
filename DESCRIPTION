@@ -3,7 +3,7 @@ Title: NOOA Earthquakes
 Version: 0.0.1.0
 Authors@R: person("Constantin", "Cosma", email = "cosma.constantin@mail.com", role = c("aut", "cre"))
 Description: Create graphical extensions for visualizing information of earthquakes. 
-Depends: R (>= 3.4.3)
+Depends: R (>= 3.4.2)
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
